@@ -1,0 +1,25 @@
+<!-- html/form.html -->
+<!DOCTYPE html>
+<html>
+<head><title>画像取得テスト</title></head>
+<body>
+  <form method="GET" action="">
+    <label>画像ファイル名（例：dog.jpg）:</label>
+    <input type="text" name="img" value="000.jpg">
+    <input type="submit" value="表示">
+  </form>
+
+  <hr>
+  <!-- 画像が指定されていた場合に表示 -->
+  <script>
+    const params = new URLSearchParams(location.search);
+    if (params.has("img")) {
+      const filename = params.get("img");
+      const img = document.createElement("img");
+      img.src = filename;
+      img.width = 400;
+      document.body.appendChild(img);
+    }
+  </script>
+</body>
+</html>
