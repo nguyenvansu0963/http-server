@@ -19,7 +19,7 @@ typedef struct {
   char type[64];
   int code;
   int size;
-  char location[256]; // 古いURLを格納
+  char location[256]; // リダイレクト先URL
 } exp1_info_type;
 
 // HTTPセッション処理関数
@@ -30,8 +30,6 @@ void exp1_check_file(exp1_info_type *info);
 void exp1_http_reply(int sock, exp1_info_type *info);
 void exp1_send_404(int sock);
 void exp1_send_file(int sock, char* filename);
-
-/*追加関数群*/
 void post_http(int sock, char *buf, exp1_info_type *info);
 void reply_redirect(int sock, char *body, exp1_info_type *info);
 void remove_newlines(char *str);
@@ -112,7 +110,6 @@ void printChildProcessStatus(pid_t pid, int status) {
           WTERMSIG(status), WIFSTOPPED(status), WSTOPSIG(status));
 }
 
-/*ここはいじった*/
 int exp1_http_session(int sock)
 {
   char buf[2048];
@@ -183,7 +180,6 @@ int exp1_http_session(int sock)
   return 0;
 }
 
-//ここはいじってないはず
 int exp1_parse_header(char* buf, int size, exp1_info_type* info)
 {
   char status[1024];
@@ -247,13 +243,13 @@ int exp1_parse_header(char* buf, int size, exp1_info_type* info)
           remove(tmpfile);
 
           // printf("DEBUG: decoded = %s\n", decoded);  // デバッグ表示
-          if (strcmp(decoded, "admin3:12345") == 0)
+          if (strcmp(decoded, "admin:12345") == 0)
           {
             info->code = 200; // 認証成功
           }
-          else if (strcmp(decoded, "user3:12345") == 0)
+          else if (strcmp(decoded, "user:12345") == 0)
           {
-            info->code = 403; // 認証成功だが、このユーザはアクセス権限がない
+            info->code = 403; // 認証成功だが、このユーザにはアクセス権限がない
           }
           else
           {
@@ -273,7 +269,6 @@ int exp1_parse_header(char* buf, int size, exp1_info_type* info)
   return 0;
 }
 
-/*ここはいじった*/
 void exp1_parse_status(char* status, exp1_info_type *pinfo)
 {
   char cmd[1024];
@@ -341,7 +336,6 @@ void exp1_parse_status(char* status, exp1_info_type *pinfo)
   strcpy(pinfo->path, path);
 }
 
-/*ここはいじった*/
 void exp1_check_file(exp1_info_type *info)
 {
   struct stat s;
@@ -357,13 +351,13 @@ void exp1_check_file(exp1_info_type *info)
   else if (strcmp(info->path, "/temp.html") == 0)
   {
     info->code = 302;
-    strcpy(info->location, "/temporary.html"); // 転送先のパス
+    strcpy(info->location, "/temporary.html"); // リダイレクト先のパス
     return;
   }
   else if (strcmp(info->path, "/postdone") == 0)
   {
     info->code = 303;
-    strcpy(info->location, "/thankyou.html");
+    strcpy(info->location, "/thankyou.html");// リダイレクト先
     return;
   }
   else if (strcmp(info->path, "/secret.html") == 0)
@@ -421,7 +415,6 @@ void exp1_check_file(exp1_info_type *info)
 
 }
 
-//何もしていない
 void exp1_http_reply(int sock, exp1_info_type *info)
 {
   char buf[16384];
@@ -532,7 +525,6 @@ void exp1_http_reply(int sock, exp1_info_type *info)
   exp1_send_file(sock, info->real_path);
 }
 
-//何もしてない
 void exp1_send_404(int sock)
 {
   char buf[16384];
@@ -548,7 +540,6 @@ void exp1_send_404(int sock)
   }
 }
 
-//何もしてない
 void exp1_send_file(int sock, char* filename)
 {
   FILE *fp;
@@ -576,7 +567,6 @@ void exp1_send_file(int sock, char* filename)
   fclose(fp);
 }
 
-//自作関数ーーーーーーーーーー
 void post_http(int sock, char *buf, exp1_info_type *info) {
     // 
     char *body = NULL;
